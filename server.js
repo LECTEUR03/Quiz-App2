@@ -1,39 +1,22 @@
-// 
-const express = require("express"); // Importation du module Express
-const fs = require("fs");           // Importation du module fs pour la gestion des fichiers
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const quizRoutes = require("./routes/quizRoutes");
 
-
-// Initialisation de l'application Express
-const app = express();              // Création d'une instance de l'application Express
-const PORT = 3000;                   // Définition du port sur lequel le serveur écoutera
-
+// Configuration de l'application
+const app = express();
+const PORT = 3000;
 
 app.use(express.json());
 app.use(express.static("public"));
 
-// Récupérer tous les quiz
-app.get("/quiz", (req, res) => {                      
-  const data = fs.readFileSync("quizzes.json");
-  res.json(JSON.parse(data));
-});
+// Connexion MongoDB
+mongoose.connect(process.env.MONGODB_URL)
+  .then(() => console.log("Connecté à MongoDB !"))
+  .catch((err) => console.log("Erreur de connexion :", err));
 
-
-
-
-
-// Ajouter un quiz
-app.post("/quiz", (req, res) => {
-  const newQuiz = req.body;
-  
-  const data = JSON.parse(fs.readFileSync("quizzes.json"));
-  data.push(newQuiz);
-
-  fs.writeFileSync("quizzes.json", JSON.stringify(data, null, 2));
-
-  res.json({ message: "Quiz ajouté !" });
-});
-
-
+// Routes
+app.use("/quiz", quizRoutes);
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);

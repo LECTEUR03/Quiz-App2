@@ -5,8 +5,10 @@ const quizRoutes = require("./routes/quizRoutes");
 const categoryRoutes = require("./routes/categoryRoute");
 const userRoutes = require("./routes/userRoute");
 const resultRoutes = require("./routes/resultRoute")
+const cors = require("cors");
 
 // Configuration de l'application
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -26,6 +28,7 @@ mongoose
 .catch((error) => console.log("Erreur de connexion DB:", error));
 
 // Routes
+app.use(cors());
 app.use("/quiz", quizRoutes);
 app.use("/category",categoryRoutes);
 app.use("/user", userRoutes);

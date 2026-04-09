@@ -1,45 +1,65 @@
-* {
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+  --coral:      #F4613A;
+  --coral-dark: #d94e28;
+  --text:       #111827;
+  --muted:      #6B7280;
+  --border:     #E5E7EB;
+  --bg:         #F9FAFB;
+  --white:      #FFFFFF;
+}
+
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f0f4f8;
-  color: #333;
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
   min-height: 100vh;
+  line-height: 1.6;
 }
 
 /* ── NAVBAR ── */
 nav {
-  background-color: #4f46e5;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
   padding: 14px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .logo {
-  color: white;
-  font-size: 1.3rem;
-  font-weight: bold;
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 nav a {
-  color: white;
+  color: var(--muted);
   text-decoration: none;
-  background-color: rgba(255,255,255,0.2);
+  font-size: 0.9rem;
+  font-weight: 500;
   padding: 7px 14px;
   border-radius: 20px;
-  font-size: 0.88rem;
+  transition: color 0.2s, background 0.2s;
   white-space: nowrap;
 }
 
 nav a:hover {
-  background-color: rgba(255,255,255,0.35);
+  color: var(--coral);
+  background-color: rgba(244, 97, 58, 0.08);
 }
 
 /* ── CONTAINER ── */
@@ -51,71 +71,87 @@ nav a:hover {
 
 h1 {
   font-size: 1.6rem;
-  color: #1e1b4b;
+  font-weight: 700;
+  color: var(--text);
   margin-bottom: 6px;
 }
 
 .subtitle {
-  color: #6b7280;
+  color: var(--muted);
   margin-bottom: 20px;
   font-size: 0.95rem;
 }
 
 /* ── CARD ── */
 .card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: var(--white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--border);
 }
 
 /* ── INPUTS ── */
-input {
+input, select {
   display: block;
   width: 100%;
   margin: 10px 0;
   padding: 11px 14px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
   font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--text);
   transition: border-color 0.2s;
 }
 
-input:focus {
+input:focus, select:focus {
   outline: none;
-  border-color: #4f46e5;
+  border-color: var(--coral);
 }
 
 /* ── BOUTONS ── */
 button {
   margin: 8px 4px;
-  padding: 10px 18px;
-  background-color: #4f46e5;
-  color: white;
+  padding: 10px 20px;
+  background-color: var(--coral);
+  color: var(--white);
   border: none;
-  border-radius: 8px;
+  border-radius: 30px;
   font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.15s;
 }
 
-button:hover   { background-color: #4338ca; }
-button:disabled { background-color: #c4c4c4; cursor: not-allowed; }
+button:hover {
+  background-color: var(--coral-dark);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
 
 /* ── QUIZ CARD ── */
 .quiz-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 22px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--border);
 }
 
 .quiz-card p strong {
   font-size: 1rem;
-  color: #1e1b4b;
+  color: var(--text);
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .quiz-card button {
@@ -125,63 +161,108 @@ button:disabled { background-color: #c4c4c4; cursor: not-allowed; }
   text-align: left;
   padding: 10px 14px;
   font-size: 0.9rem;
+  border-radius: 10px;
 }
 
 .resultat {
   margin-top: 10px;
-  font-weight: bold;
+  font-weight: 700;
   font-size: 0.9rem;
 }
 
 /* ── SCORE ── */
 .score-card {
-  background: #4f46e5;
-  color: white;
-  border-radius: 12px;
-  padding: 28px 20px;
+  background: var(--coral);
+  color: var(--white);
+  border-radius: 16px;
+  padding: 32px 24px;
   text-align: center;
   margin-top: 20px;
+  box-shadow: 0 4px 20px rgba(244,97,58,0.3);
 }
 
 .score-card h2 {
   font-size: 1.8rem;
+  font-weight: 700;
   margin-bottom: 12px;
 }
 
 .score-card button {
-  background-color: white;
-  color: #4f46e5;
-  font-weight: bold;
+  background-color: var(--white);
+  color: var(--coral);
+  font-weight: 700;
   width: auto;
   display: inline-block;
   margin: 6px 4px;
+  border-radius: 30px;
 }
 
-.score-card button:hover { background-color: #e0e7ff; }
+.score-card button:hover {
+  background-color: #fff0eb;
+  transform: translateY(-1px);
+}
+
+/* ── ADMIN LIST ── */
+.quiz-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.quiz-item button {
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 0.82rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.quiz-item button:hover {
+  background: #fecaca;
+  transform: none;
+}
 
 /* ── MESSAGE ADMIN ── */
 #message {
   margin-top: 12px;
-  color: #4f46e5;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-/* 
-   RESPONSIVE
-*/
+/* ── RESULTS LIST ── */
+.result-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-/* Tablette */
+.result-score {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--coral);
+}
+
+/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .container { margin: 24px auto; }
-  h1 { font-size: 1.4rem; }
+  h1 { font-size: 1.3rem; }
   .score-card h2 { font-size: 1.5rem; }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   nav { padding: 12px 16px; }
-  .logo { font-size: 1.1rem; }
-  nav a { font-size: 0.8rem; padding: 6px 11px; }
   .container { margin: 16px auto; padding: 0 12px; }
   h1 { font-size: 1.2rem; }
   .card { padding: 16px; }

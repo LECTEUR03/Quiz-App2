@@ -12,7 +12,7 @@ async function afficherResultats() {
   results.forEach((result) => {
     const div = document.createElement("div");
     div.className = "quiz-card";
-    const date = new Date(result.date).toLocaleDateString("fr-FR", {
+    const date = new Date(result.createdAt || result.date).toLocaleDateString("fr-FR", {
       day: "2-digit",
       month: "long",
       year: "numeric",

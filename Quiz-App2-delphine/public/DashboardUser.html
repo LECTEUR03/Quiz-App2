@@ -79,12 +79,20 @@
 
 <script src="https://kit.fontawesome.com/90223747f9.js" crossorigin="anonymous"></script>
 <script>
+const token = localStorage.getItem('token');
+if (!token) window.location.href = 'prem.html';
+
+const authHeaders = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+};
+
 let tousLesUsers = [];
 let userEnCours  = null;
 
 async function chargerUsers() {
     try {
-        const res   = await fetch('/user/users');
+        const res   = await fetch('/user/users', { headers: authHeaders });
         const users = await res.json();
 
         if (!Array.isArray(users)) {
@@ -138,7 +146,7 @@ document.getElementById('search').addEventListener('input', function () {
 async function supprimerUser(id) {
     if (!confirm('Supprimer cet utilisateur ?')) return;
     try {
-        await fetch(`/user/delete/user/${id}`, { method: 'DELETE' });
+        await fetch(`/user/delete/user/${id}`, { method: 'DELETE', headers: authHeaders });
         chargerUsers();
     } catch (err) {
         alert('Erreur lors de la suppression');
@@ -166,7 +174,7 @@ async function sauvegarderUser() {
     try {
         await fetch(`/user/update/user/${userEnCours}`, {
             method:  'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders,
             body:    JSON.stringify({ nom, email })
         });
         fermerModal();

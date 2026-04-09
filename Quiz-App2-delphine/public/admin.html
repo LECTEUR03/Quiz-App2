@@ -9,24 +9,111 @@
   <body> 
     <nav>
       <span class="logo">🧠 QuizApp</span>
-      <a href="index.html">Voir les quiz</a>
-      <a href="adminList.html">liste des quiz</a>
+      <a href="Dashboard.html">Dashboard</a>
+      <a href="adminList.html">Liste des quiz</a>
     </nav>
 
     <div class="container">
       <h1>Créer un quiz</h1>
-      <p class="subtitle">Ajoute une nouvelle question pour les utilisateurs</p>
+      <p class="subtitle">Ajoute un nouveau quiz avec ses questions</p>
 
       <div class="card">
-        <input id="question" placeholder="question..." />
+        <input id="title" placeholder="Titre du quiz (ex: Quiz Sciences)" />
+        <select id="categorie">
+          <option value="">-- Choisir une catégorie --</option>
+        </select>
+
+        <hr style="margin: 16px 0;">
+        <p><strong>Question</strong></p>
+        <input id="question" placeholder="Énoncé de la question" />
         <input id="option1" placeholder="Option 1" />
         <input id="option2" placeholder="Option 2" />
-        <input id="correct" placeholder="Bonne réponse " />
-        <button onclick="createQuiz()"> Créer le quiz</button>
+        <input id="option3" placeholder="Option 3" />
+        <input id="option4" placeholder="Option 4" />
+        <input id="correct" placeholder="Bonne réponse (recopie exactement l'une des options)" />
+
+        <button onclick="createQuiz()">Créer le quiz</button>
         <p id="message"></p>
       </div>
     </div>
 
-    <script src="../public/js/admin.js"></script>
+    <script>
+      // Charger les catégories dans le select
+      async function loadCategories() {
+        try {
+          const res = await fetch('/category');
+          const cats = await res.json();
+          const select = document.getElementById('categorie');
+          cats.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat._id;
+            option.textContent = cat.nom;
+            select.appendChild(option);
+          });
+        } catch (e) {
+          console.error('Erreur chargement catégories', e);
+        }
+      }
+
+      async function createQuiz() {
+        const title     = document.getElementById('title').value.trim();
+        const categorie = document.getElementById('categorie').value;
+        const question  = document.getElementById('question').value.trim();
+        const option1   = document.getElementById('option1').value.trim();
+        const option2   = document.getElementById('option2').value.trim();
+        const option3   = document.getElementById('option3').value.trim();
+        const option4   = document.getElementById('option4').value.trim();
+        const correct   = document.getElementById('correct').value.trim();
+        const msg       = document.getElementById('message');
+
+        if (!title || !categorie || !question || !option1 || !option2 || !correct) {
+          msg.textContent = '⚠️ Veuillez remplir au minimum : titre, catégorie, question, 2 options et la bonne réponse.';
+          msg.style.color = 'orange';
+          return;
+        }
+
+        const options = [option1, option2];
+        if (option3) options.push(option3);
+        if (option4) options.push(option4);
+
+        const token = localStorage.getItem('token');
+        try {
+          const res = await fetch('/quiz', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify({
+              title,
+              categorie,
+              questions: [{ question, options, correct }]
+            })
+          });
+
+          if (res.ok) {
+            msg.textContent = '✅ Quiz ajouté avec succès !';
+            msg.style.color = 'green';
+            document.getElementById('title').value    = '';
+            document.getElementById('categorie').value = '';
+            document.getElementById('question').value  = '';
+            document.getElementById('option1').value   = '';
+            document.getElementById('option2').value   = '';
+            document.getElementById('option3').value   = '';
+            document.getElementById('option4').value   = '';
+            document.getElementById('correct').value   = '';
+          } else {
+            const err = await res.json();
+            msg.textContent = '❌ Erreur : ' + (err.message || err.error);
+            msg.style.color = 'red';
+          }
+        } catch (e) {
+          msg.textContent = '❌ Erreur réseau : ' + e.message;
+          msg.style.color = 'red';
+        }
+      }
+
+      loadCategories();
+    </script>
   </body>
 </html>

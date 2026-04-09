@@ -119,6 +119,11 @@
 
 <script src="https://kit.fontawesome.com/90223747f9.js" crossorigin="anonymous"></script>
 <script>
+const token = localStorage.getItem('token');
+if (!token) window.location.href = 'prem.html';
+
+const authHeaders = { 'Authorization': `Bearer ${token}` };
+
 let tousLesQuizzes = [];
 
 async function chargerQuizzes() {
@@ -214,7 +219,7 @@ function fermerModal() {
 async function supprimerQuiz(id) {
     if (!confirm('Supprimer ce quiz et toutes ses questions ?')) return;
     try {
-        await fetch(`/quiz/${id}`, { method: 'DELETE' });
+        await fetch(`/quiz/${id}`, { method: 'DELETE', headers: authHeaders });
         chargerQuizzes();
     } catch (err) {
         alert('Erreur lors de la suppression');

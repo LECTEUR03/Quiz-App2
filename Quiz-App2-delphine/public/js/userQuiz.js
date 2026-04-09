@@ -1,41 +1,59 @@
 let score = 0;
 let total = 0;
 
-// Afficher les quiz
 async function afficherQuiz() {
-  const response = await fetch("/quiz");
-  const quizzes = await response.json();
   const container = document.getElementById("quizContainer");
 
-  total = quizzes.length;
+  try {
+    const response = await fetch("/quiz");
+    const quizzes  = await response.json();
 
-  quizzes.forEach((quiz) => {
-    const div = document.createElement("div");
-    div.className = "quiz-card";
+    if (!Array.isArray(quizzes) || quizzes.length === 0) {
+      container.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:40px;">Aucun quiz disponible pour le moment.</p>';
+      return;
+    }
 
-    const boutons = quiz.options.map(option => `
-      <button onclick="verifierReponse(this, '${option}', '${quiz.correct}')">
-        ${option}
-      </button>
-    `).join("");
+    const quiz = quizzes[0];
+    const questions = quiz.questions || [];
+    total = questions.length;
 
-    div.innerHTML = `
-      <p><strong>${quiz.question}</strong></p>
-      ${boutons}
-      <p class="resultat"></p>
-      <hr>
-    `;
+    if (total === 0) {
+      container.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:40px;">Ce quiz ne contient pas encore de questions.</p>';
+      return;
+    }
 
-    container.appendChild(div);
-  });
+    questions.forEach((q) => {
+      const div = document.createElement("div");
+      div.className = "quiz-card";
 
-  const boutonScore = document.createElement("button");
-  boutonScore.textContent = "Voir mon score";
-  boutonScore.onclick = afficherScore;
-  container.appendChild(boutonScore);
+      if (!q.options || !Array.isArray(q.options)) return;
+
+      const boutons = q.options.map(option => `
+        <button onclick="verifierReponse(this, '${option.replace(/'/g, "\\'")}', '${q.correct.replace(/'/g, "\\'")}')">
+          ${option}
+        </button>
+      `).join("");
+
+      div.innerHTML = `
+        <p><strong>${q.question}</strong></p>
+        ${boutons}
+        <p class="resultat"></p>
+        <hr>
+      `;
+
+      container.appendChild(div);
+    });
+
+    const boutonScore = document.createElement("button");
+    boutonScore.textContent = "Voir mon score";
+    boutonScore.onclick = afficherScore;
+    container.appendChild(boutonScore);
+
+  } catch (err) {
+    container.innerHTML = `<p style="color:red;text-align:center;">Erreur de chargement : ${err.message}</p>`;
+  }
 }
 
-// Vérifier la réponse
 function verifierReponse(bouton, optionChoisie, bonneReponse) {
   const resultat = bouton.parentElement.querySelector(".resultat");
   bouton.parentElement.querySelectorAll("button").forEach(b => b.disabled = true);
@@ -50,9 +68,7 @@ function verifierReponse(bouton, optionChoisie, bonneReponse) {
   }
 }
 
-// Afficher le score final
 async function afficherScore() {
-  // Sauvegarder le score dans MongoDB
   await fetch("/quiz/results", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -60,13 +76,13 @@ async function afficherScore() {
   });
 
   const container = document.getElementById("quizContainer");
-  const scoreDiv = document.createElement("div");
+  const scoreDiv  = document.createElement("div");
   scoreDiv.className = "score-card";
   scoreDiv.innerHTML = `
     <h2>🎯 ${score} / ${total}</h2>
     <p>Tu as eu ${score} bonne(s) réponse(s) sur ${total} !</p>
     <br>
-    <button onclick="location.reload()"> Recommencer</button>
+    <button onclick="location.reload()">Recommencer</button>
     <button onclick="window.location.href='results.html'" style="background:white; color:#4f46e5;">
       📊 Voir l'historique
     </button>

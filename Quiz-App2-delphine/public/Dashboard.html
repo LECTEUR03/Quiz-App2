@@ -80,10 +80,15 @@
     </main>
 
 <script>
+const token = localStorage.getItem('token');
+if (!token) window.location.href = 'prem.html';
+
+const authHeaders = { 'Authorization': `Bearer ${token}` };
+
 async function chargerStats() {
     try {
         const [usersRes, quizzesRes, resultsRes] = await Promise.all([
-            fetch('/user/users'),
+            fetch('/user/users', { headers: authHeaders }),
             fetch('/quiz'),
             fetch('/quiz/results')
         ]);

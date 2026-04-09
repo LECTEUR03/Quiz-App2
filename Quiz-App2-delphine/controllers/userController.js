@@ -104,7 +104,7 @@ exports.auth = async (req, res) => {
 
 exports.getAllUsers = async(req,res) => {
     try {
-        const userData = await User.find();
+        const userData = await User.find().select('-motpasse');
         if (!userData || userData.length == 0) {
             return res.status(404).json({message: "données non trouvés"})
         }

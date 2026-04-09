@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const quizController = require("../controllers/quizController");
+const verifyToken = require("../middleware/auth");
 
-router.get("/", quizController.getQuizzes);               // Récupérer tous les quiz
-router.post("/", quizController.createQuiz);             // Ajouter un quiz
-router.put("/update/:id", quizController.updateQuiz);              
-router.delete("/:id", quizController.deleteQuiz);            // Supprimer un quiz
-router.get("/filtre",  quizController.filtreCategory)
-router.post("/results", quizController.saveResult);          // Sauvegarder un résultat
-router.get("/results", quizController.getResults);           // Récupérer tous les résultats
+router.get("/", quizController.getQuizzes);
+router.get("/filtre", quizController.filtreCategory);
+router.get("/results", quizController.getResults);
+
+router.post("/", verifyToken, quizController.createQuiz);
+router.put("/update/:id", verifyToken, quizController.updateQuiz);
+router.delete("/:id", verifyToken, quizController.deleteQuiz);
+router.post("/results", verifyToken, quizController.saveResult);
 
 module.exports = router;

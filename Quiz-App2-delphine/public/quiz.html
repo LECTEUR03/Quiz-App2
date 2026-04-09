@@ -195,8 +195,16 @@
     try {
       await fetch('/quiz/results', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ score, total })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({
+          user:  user ? user.id : null,
+          quiz:  quizId,
+          score,
+          total
+        })
       });
     } catch (e) {
       console.error('Erreur sauvegarde résultat', e);

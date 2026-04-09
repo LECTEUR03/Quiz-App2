@@ -1,20 +1,18 @@
 <!doctype html>
-<html lang="en">
-
+<html lang="fr">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Admin</title>
     <link rel="stylesheet" href="./css/dashoard.css" />
 </head>
-
 <body>
     <header>
         <nav>
             <img src="./img/logo.png" alt="logo" />
             <div>
                 <h3>DASHBOARD ADMIN</h3>
-                <h2>Gerer les quiz et les utulisateurs</h2>
+                <h2>Gérer les quiz et les utilisateurs</h2>
             </div>
         </nav>
     </header>
@@ -25,131 +23,140 @@
                     <a href="Dashboard.html" id="ensemble">Vue d'ensemble</a>
                 </div>
                 <div>
-                    <a href="DashboardUser.html">utulisateurs</a>
+                    <a href="DashboardUser.html">Utilisateurs</a>
                 </div>
                 <div>
                     <a href="DashboardQuiz.html">Quiz</a>
                 </div>
                 <div id="fin">
-                    <a href="Dashboard.html">Creer des Quiz</a>
+                    <a href="sd.html">← Site</a>
                 </div>
             </div>
         </div>
+
+        <!-- STATISTIQUES -->
         <div class="statistique">
             <div>
-                <div>
-                    <h4>1000</h4>
-                    <h4>Total utulisateurs</h4>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <h4 id="stat-users">...</h4>
+                    <h4>Total utilisateurs</h4>
                 </div>
-                <div>
-                    <h4>20</h4>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <h4 id="stat-quizzes">...</h4>
                     <h4>Total Quiz</h4>
                 </div>
-                <div>
-                    <h4>8</h4>
-                    <h4>Quiz Complètés</h4>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <h4 id="stat-results">...</h4>
+                    <h4>Quiz Complétés</h4>
                 </div>
-                <div>
-                    <h4>75%</h4>
-                    <h4>Taux de reussite</h4>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <h4 id="stat-taux">...</h4>
+                    <h4>Taux de réussite</h4>
                 </div>
             </div>
         </div>
+
+        <!-- GRAPHIQUE -->
         <div class="graphique_dash">
             <div>
-                <h4></h4>
+                <h4 style="text-align:center;margin-bottom:16px;">Scores des dernières parties</h4>
                 <div class="chart">
-                    <div class="bars">
-                        <div class="bar" data-value="10"><span>Lun</span></div>
-                        <div class="bar" data-value="20"><span>Mar</span></div>
-                        <div class="bar" data-value="15"><span>Mer</span></div>
-                        <div class="bar" data-value="30"><span>Jeu</span></div>
-                        <div class="bar" data-value="25"><span>Ven</span></div>
-                        <div class="bar" data-value="40"><span>Sam</span></div>
-                        <div class="bar" data-value="50"><span>Dim</span></div>
+                    <div class="bars" id="chart-bars">
+                        <p style="color:#9ca3af;font-size:13px;margin:auto;">Chargement...</p>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- ACTIVITÉS RÉCENTES -->
         <div class="activite_recent">
             <div class="container_activite">
-                <h4>Activités recente</h4>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
-                </div>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
-                </div>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
-                </div>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
-                </div>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
-                </div>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
-                </div>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
-                </div>
-                <div>
-                    <div>
-                        <h4>Nouveau Quiz Complété</h4>
-                        <h6>Il y'a 2h </h6>
-                    </div>
-                    <h5>Par Jean Bernard</h5>
+                <h4>Activités récentes</h4>
+                <div id="activites-list">
+                    <p style="color:#9ca3af;text-align:center;">Chargement...</p>
                 </div>
             </div>
         </div>
     </main>
-</body>
+
 <script>
-    const bars = document.querySelectorAll(".bar");
+async function chargerStats() {
+    try {
+        const [usersRes, quizzesRes, resultsRes] = await Promise.all([
+            fetch('/user/users'),
+            fetch('/quiz'),
+            fetch('/quiz/results')
+        ]);
 
-    // récupérer la valeur max
-    let max = 0;
-    bars.forEach((bar) => {
-        const value = parseInt(bar.dataset.value);
-        if (value > max) max = value;
-    });
+        const users   = await usersRes.json();
+        const quizzes = await quizzesRes.json();
+        const results = await resultsRes.json();
 
-    // appliquer la hauteur proportionnelle
-    bars.forEach((bar) => {
-        const value = parseInt(bar.dataset.value);
-        const height = (value / max) * 100;
-        bar.style.height = height + "%";
-    });
+        // Stats
+        document.getElementById('stat-users').textContent   = Array.isArray(users)   ? users.length   : 0;
+        document.getElementById('stat-quizzes').textContent = Array.isArray(quizzes) ? quizzes.length : 0;
+        document.getElementById('stat-results').textContent = Array.isArray(results) ? results.length : 0;
+
+        // Taux de réussite moyen
+        if (Array.isArray(results) && results.length > 0) {
+            const taux = results.reduce((acc, r) => acc + (r.score / r.total) * 100, 0) / results.length;
+            document.getElementById('stat-taux').textContent = Math.round(taux) + '%';
+        } else {
+            document.getElementById('stat-taux').textContent = 'N/A';
+        }
+
+        // Graphique — 7 derniers résultats
+        const barsContainer = document.getElementById('chart-bars');
+        barsContainer.innerHTML = '';
+
+        if (Array.isArray(results) && results.length > 0) {
+            const derniers = results.slice(-7);
+            const max = Math.max(...derniers.map(r => r.score));
+
+            derniers.forEach((r, i) => {
+                const pct    = max > 0 ? Math.round((r.score / max) * 100) : 0;
+                const label  = `P${i + 1}`;
+                const bar    = document.createElement('div');
+                bar.className    = 'bar';
+                bar.style.height = pct + '%';
+                bar.title        = `${r.score}/${r.total}`;
+                bar.innerHTML    = `<span>${label}</span>`;
+                barsContainer.appendChild(bar);
+            });
+        } else {
+            barsContainer.innerHTML = '<p style="color:#9ca3af;font-size:13px;margin:auto;">Aucune donnée</p>';
+        }
+
+        // Activités récentes — 8 derniers résultats
+        const activitesList = document.getElementById('activites-list');
+        activitesList.innerHTML = '';
+
+        if (Array.isArray(results) && results.length > 0) {
+            results.slice(-8).reverse().forEach(r => {
+                const date = new Date(r.createdAt).toLocaleDateString('fr-FR', {
+                    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+                const pct = Math.round((r.score / r.total) * 100);
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div>
+                        <h4>Quiz complété — ${r.score}/${r.total} (${pct}%)</h4>
+                        <h6>${date}</h6>
+                    </div>
+                    <h5>${r.quizTitle || 'Quiz'}</h5>
+                `;
+                activitesList.appendChild(div);
+            });
+        } else {
+            activitesList.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">Aucune activité récente</p>';
+        }
+
+    } catch (err) {
+        console.error('Erreur chargement stats :', err);
+    }
+}
+
+chargerStats();
 </script>
-
+</body>
 </html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartQuiz – Quiz</title>
+  <link rel="stylesheet" href="./css/style.css"/>
+  <style>
+    .quiz-header { margin-bottom: 28px; }
+    .quiz-header .categorie-badge {
+      display: inline-block;
+      background: #ede9fe;
+      color: #6d28d9;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .question-num {
+      font-size: 0.82rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .progress-bar-wrap {
+      background: #e5e7eb;
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: #4f46e5;
+      border-radius: 99px;
+      transition: width .3s ease;
+    }
+    #loading-msg {
+      text-align: center;
+      color: #6b7280;
+      padding: 40px 0;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">🧠 SmartQuiz</span>
+  <a href="sd.html">← Accueil</a>
+</nav>
+
+<div class="container">
+  <div class="quiz-header">
+    <div class="categorie-badge" id="categorie-label"></div>
+    <h1 id="quiz-titre">Chargement...</h1>
+    <p class="subtitle">Réponds à toutes les questions !</p>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <div id="quizContainer">
+    <p id="loading-msg">⏳ Chargement du quiz...</p>
+  </div>
+</div>
+
+<script>
+  // Vérifier la connexion
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user'));
+  if (!token) {
+    window.location.href = 'prem.html';
+  }
+
+  // Récupérer la catégorie depuis l'URL
+  const params    = new URLSearchParams(window.location.search);
+  const categorie = params.get('categorie') || '';
+
+  document.getElementById('categorie-label').textContent = categorie;
+  document.getElementById('quiz-titre').textContent = `Quiz – ${categorie}`;
+
+  let score   = 0;
+  let total   = 0;
+  let repondu = 0;
+  let quizId  = null;
+
+  async function afficherQuiz() {
+    const container = document.getElementById('quizContainer');
+
+    try {
+      const url = categorie
+        ? `/quiz/filtre?categorie=${encodeURIComponent(categorie)}`
+        : '/quiz';
+
+      const res     = await fetch(url);
+      const quizzes = await res.json();
+
+      container.innerHTML = '';
+
+      if (!quizzes.length) {
+        container.innerHTML = `
+          <div class="quiz-card">
+            <p>😕 Aucun quiz trouvé pour la catégorie <strong>${categorie}</strong>.</p>
+            <button onclick="window.location.href='sd.html'">← Retour</button>
+          </div>`;
+        return;
+      }
+
+      // On prend le premier quiz de la catégorie
+      const quiz = quizzes[0];
+      quizId = quiz._id;
+      total  = quiz.questions.length;
+
+      document.getElementById('quiz-titre').textContent = quiz.title || `Quiz – ${categorie}`;
+
+      quiz.questions.forEach((q, index) => {
+        const div = document.createElement('div');
+        div.className  = 'quiz-card';
+        div.dataset.id = index;
+
+        const boutons = q.options.map(option => `
+          <button onclick="verifierReponse(this, '${option.replace(/'/g,"\\'")}', '${q.correct.replace(/'/g,"\\'")}', ${index})">
+            ${option}
+          </button>
+        `).join('');
+
+        div.innerHTML = `
+          <p class="question-num">Question ${index + 1} / ${total}</p>
+          <p><strong>${q.question}</strong></p>
+          ${boutons}
+          <p class="resultat"></p>
+        `;
+
+        container.appendChild(div);
+      });
+
+      majProgressBar();
+
+      // Bouton score
+      const btnScore = document.createElement('button');
+      btnScore.id          = 'btn-score';
+      btnScore.textContent = 'Voir mon score';
+      btnScore.style.display = 'none';
+      btnScore.onclick     = afficherScore;
+      container.appendChild(btnScore);
+
+    } catch (err) {
+      container.innerHTML = `<p style="color:red">Erreur de chargement : ${err.message}</p>`;
+    }
+  }
+
+  function verifierReponse(bouton, optionChoisie, bonneReponse, index) {
+    const card    = bouton.parentElement;
+    const resultat = card.querySelector('.resultat');
+
+    // Désactiver tous les boutons de cette question
+    card.querySelectorAll('button').forEach(b => {
+      b.disabled = true;
+      if (b.textContent.trim() === bonneReponse) {
+        b.style.background = '#22c55e';
+      }
+    });
+
+    if (optionChoisie === bonneReponse) {
+      resultat.textContent = '✅ Bonne réponse !';
+      resultat.style.color = 'green';
+      score++;
+    } else {
+      bouton.style.background = '#ef4444';
+      resultat.textContent = `❌ La bonne réponse était : ${bonneReponse}`;
+      resultat.style.color = 'red';
+    }
+
+    repondu++;
+    majProgressBar();
+
+    // Afficher le bouton score quand toutes les questions sont répondues
+    if (repondu === total) {
+      document.getElementById('btn-score').style.display = 'block';
+    }
+  }
+
+  function majProgressBar() {
+    const pct = total > 0 ? Math.round((repondu / total) * 100) : 0;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  async function afficherScore() {
+    // Sauvegarder le résultat
+    try {
+      await fetch('/quiz/results', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ score, total })
+      });
+    } catch (e) {
+      console.error('Erreur sauvegarde résultat', e);
+    }
+
+    const container = document.getElementById('quizContainer');
+    const pct       = Math.round((score / total) * 100);
+    const emoji     = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪';
+
+    container.innerHTML = `
+      <div class="score-card">
+        <h2>${emoji} ${score} / ${total}</h2>
+        <p>Tu as réussi ${pct}% des questions !</p>
+        <br>
+        <button onclick="location.reload()">🔄 Recommencer</button>
+        <button onclick="window.location.href='sd.html'" style="background:white;color:#4f46e5;">
+          🏠 Accueil
+        </button>
+        <button onclick="window.location.href='results.html'" style="background:white;color:#4f46e5;">
+          📊 Historique
+        </button>
+      </div>
+    `;
+  }
+
+  afficherQuiz();
+</script>
+
+</body>
+</html>
